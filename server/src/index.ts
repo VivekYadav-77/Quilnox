@@ -5,6 +5,7 @@ import path from 'path';
 import connectDB from './config/db';
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
+import leadRoutes from './routes/leadRoutes';
 
 dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 
@@ -19,6 +20,7 @@ app.get('/health', (_req, res) => {
 });
 
 app.use('/api/auth', authRoutes);
+app.use('/api/leads', leadRoutes);
 app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {
