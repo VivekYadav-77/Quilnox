@@ -13,17 +13,30 @@ dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;
+const splitOrigins = (value: string | undefined): string[] => {
+  return value
+    ? value
+        .split(',')
+        .map((origin) => origin.trim().replace(/\/$/, ''))
+        .filter(Boolean)
+    : [];
+};
+
 const allowedOrigins = [
-  process.env.CLIENT_ORIGIN,
+  ...splitOrigins(process.env.CLIENT_ORIGIN),
+  ...splitOrigins(process.env.CLIENT_ORIGINS),
+  'https://quilnox.vercel.app',
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
   'http://127.0.0.1:3000',
-].filter(Boolean) as string[];
+];
 
 const corsOptions: CorsOptions = {
   origin(origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
+    const normalizedOrigin = origin?.replace(/\/$/, '');
+
+    if (!normalizedOrigin || allowedOrigins.includes(normalizedOrigin)) {
       callback(null, true);
       return;
     }
