@@ -55,8 +55,8 @@ app.get('/health', (_req, res) => {
   res.json({ success: true, message: 'Server is running' });
 });
 
-app.use('/api/auth', authRoutes);
-app.use('/api/leads', leadRoutes);
+app.use('/auth', authRoutes);
+app.use('/leads', leadRoutes);
 app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {

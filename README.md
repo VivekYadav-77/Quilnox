@@ -81,7 +81,8 @@ MONGO_URI=mongodb://mongo:27017/smart-leads
 JWT_SECRET=your_jwt_secret_here
 JWT_EXPIRES_IN=7d
 NODE_ENV=development
-VITE_API_BASE_URL=http://localhost:5000/api
+CLIENT_ORIGIN=http://localhost:5173
+VITE_API_BASE_URL=http://localhost:5000
 ```
 
 For local server development, use `MONGO_URI=mongodb://localhost:27017/smart-leads`.
@@ -97,15 +98,15 @@ There are no default seeded credentials. Create users from the Register page:
 | Method | Path | Auth | Role |
 |---|---|---|---|
 | GET | `/health` | No | Public |
-| POST | `/api/auth/register` | No | Public |
-| POST | `/api/auth/login` | No | Public |
-| GET | `/api/auth/me` | Yes | Any |
-| GET | `/api/auth/admin-check` | Yes | Admin |
-| GET | `/api/leads` | Yes | Any |
-| POST | `/api/leads` | Yes | Any |
-| GET | `/api/leads/:id` | Yes | Owner or Admin |
-| PUT | `/api/leads/:id` | Yes | Owner or Admin |
-| DELETE | `/api/leads/:id` | Yes | Admin |
+| POST | `/auth/register` | No | Public |
+| POST | `/auth/login` | No | Public |
+| GET | `/auth/me` | Yes | Any |
+| GET | `/auth/admin-check` | Yes | Admin |
+| GET | `/leads` | Yes | Any |
+| POST | `/leads` | Yes | Any |
+| GET | `/leads/:id` | Yes | Owner or Admin |
+| PUT | `/leads/:id` | Yes | Owner or Admin |
+| DELETE | `/leads/:id` | Yes | Admin |
 
 Lead list query params:
 

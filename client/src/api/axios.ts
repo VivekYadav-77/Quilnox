@@ -2,10 +2,9 @@ import axios, { AxiosError } from 'axios';
 import type { InternalAxiosRequestConfig } from 'axios';
 
 const getApiBaseUrl = (): string => {
-  const configuredUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000/api';
-  const trimmedUrl = configuredUrl.replace(/\/$/, '');
+  const configuredUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
 
-  return trimmedUrl.endsWith('/api') ? trimmedUrl : `${trimmedUrl}/api`;
+  return configuredUrl.replace(/\/$/, '');
 };
 
 const apiClient = axios.create({
