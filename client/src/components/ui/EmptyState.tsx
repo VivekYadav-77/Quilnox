@@ -8,10 +8,12 @@ interface EmptyStateProps {
 
 const EmptyState = ({ title, description, action }: EmptyStateProps) => {
   return (
-    <div className="flex flex-col items-center justify-center rounded-lg border border-dashed border-slate-300 px-6 py-12 text-center dark:border-slate-700">
-      <h3 className="text-base font-semibold text-slate-950 dark:text-white">{title}</h3>
+    <div className="app-card flex flex-col items-center justify-center border-dashed px-6 py-12 text-center">
+      <h3 className="text-base font-semibold" style={{ color: 'var(--text-primary)' }}>
+        {title}
+      </h3>
       {description && (
-        <p className="mt-1 max-w-md text-sm text-slate-600 dark:text-slate-400">
+        <p className="mt-1 max-w-md text-sm" style={{ color: 'var(--text-secondary)' }}>
           {description}
         </p>
       )}

@@ -4,6 +4,8 @@ import type { FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerApi } from '../api/authApi';
 import BrandMark from '../components/BrandMark';
+import Button from '../components/ui/Button';
+import { AlertIcon, ArrowRightIcon } from '../components/ui/Icons';
 import { useAuth } from '../hooks/useAuth';
 import type { ApiResponse, UserRole } from '../types';
 
@@ -53,94 +55,109 @@ const RegisterPage = () => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 dark:bg-slate-950">
-      <section className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-        <BrandMark showText className="mb-6" />
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
-            Create account
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Start managing leads with your team.
-          </p>
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10"
+      style={{ background: 'var(--surface)' }}
+    >
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+        }}
+      />
+      <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'var(--accent)' }} />
+
+      <section className="relative w-full max-w-sm animate-slide-up">
+        <div className="mb-8 flex justify-center">
+          <BrandMark showText />
         </div>
 
-        {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
+        <div className="app-card p-6 shadow-2xl shadow-black/30">
+          <div className="mb-6">
+            <h1 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              Create account
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Start managing your team pipeline.
+            </p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Name
-            </span>
-            <input
-              type="text"
-              value={name}
-              onChange={(event) => setName(event.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Your name"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Email
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="you@example.com"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              minLength={8}
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Minimum 8 characters"
-            />
-          </label>
-
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Role
-            </span>
-            <select
-              value={role}
-              onChange={(event) => setRole(event.target.value as UserRole)}
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          {error && (
+            <div
+              className="mb-5 flex items-center gap-2.5 rounded-lg p-3 text-sm animate-fade-in"
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#fca5a5',
+              }}
             >
-              <option value="sales">Sales User</option>
-              <option value="admin">Admin</option>
-            </select>
-          </label>
+              <AlertIcon className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? 'Creating account...' : 'Create account'}
-          </button>
-        </form>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block">
+              <span className="label">Name</span>
+              <input
+                type="text"
+                value={name}
+                onChange={(event) => setName(event.target.value)}
+                required
+                className="input-field"
+                placeholder="Your name"
+              />
+            </label>
 
-        <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-400">
+            <label className="block">
+              <span className="label">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                className="input-field"
+                placeholder="you@company.com"
+              />
+            </label>
+
+            <label className="block">
+              <span className="label">Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                minLength={8}
+                className="input-field"
+                placeholder="Minimum 8 characters"
+              />
+            </label>
+
+            <label className="block">
+              <span className="label">Role</span>
+              <select
+                value={role}
+                onChange={(event) => setRole(event.target.value as UserRole)}
+                className="input-field"
+              >
+                <option value="sales">Sales User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </label>
+
+            <Button type="submit" loading={loading} className="w-full">
+              Create account
+              <ArrowRightIcon className="h-4 w-4" />
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-5 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
           Already registered?{' '}
-          <Link to="/login" className="font-medium text-blue-600 hover:underline">
+          <Link to="/login" className="font-medium hover:underline" style={{ color: 'var(--accent)' }}>
             Sign in
           </Link>
         </p>

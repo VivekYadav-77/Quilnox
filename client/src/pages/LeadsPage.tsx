@@ -5,6 +5,7 @@ import LeadsFilterBar from '../components/LeadsFilterBar';
 import LeadModal from '../components/LeadModal';
 import LeadsTable from '../components/LeadsTable';
 import Button from '../components/ui/Button';
+import { AlertIcon, PlusIcon } from '../components/ui/Icons';
 import Pagination from '../components/ui/Pagination';
 import { useDebounce } from '../hooks/useDebounce';
 import { useLeads } from '../hooks/useLeads';
@@ -56,6 +57,29 @@ const LeadsPage = () => {
 
   return (
     <div className="space-y-5">
+      <section className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
+        <div>
+          <p className="mb-2 text-xs font-medium uppercase" style={{ color: 'var(--accent)', letterSpacing: '0.08em' }}>
+            Pipeline control
+          </p>
+          <h2 className="font-display text-3xl font-bold" style={{ color: 'var(--text-primary)' }}>
+            Leads
+          </h2>
+          <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            {pagination ? `${pagination.total} records in view` : 'Manage and track your sales pipeline.'}
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <ExportCSVButton leads={leads} disabled={loading} />
+          {canCreate && (
+            <Button type="button" onClick={openCreateModal}>
+              <PlusIcon className="h-4 w-4" />
+              Create lead
+            </Button>
+          )}
+        </div>
+      </section>
+
       <LeadsFilterBar
         searchInput={searchInput}
         status={status}
@@ -79,26 +103,19 @@ const LeadsPage = () => {
         }}
       />
 
-      <section className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <p className="font-medium text-slate-950 dark:text-white">
-            {pagination ? `${pagination.total} results` : 'Leads'}
-          </p>
-          <p className="text-sm text-slate-500">Manage and track your pipeline.</p>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          <ExportCSVButton leads={leads} disabled={loading} />
-          {canCreate && (
-            <Button type="button" onClick={openCreateModal}>
-              Create lead
-            </Button>
-          )}
-        </div>
-      </section>
-
       {(error || deleteError) && (
-        <div className="flex items-center justify-between gap-3 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-          <span>{error || deleteError}</span>
+        <div
+          className="flex items-center justify-between gap-3 rounded-lg px-4 py-3 text-sm"
+          style={{
+            background: 'rgba(239, 68, 68, 0.08)',
+            border: '1px solid rgba(239, 68, 68, 0.2)',
+            color: '#fca5a5',
+          }}
+        >
+          <span className="flex items-center gap-2">
+            <AlertIcon className="h-4 w-4" />
+            {error || deleteError}
+          </span>
           {error && (
             <Button type="button" variant="secondary" size="sm" onClick={refetch}>
               Retry
@@ -119,11 +136,17 @@ const LeadsPage = () => {
       />
 
       {pagination && (
-        <Pagination
-          page={pagination.page}
-          totalPages={pagination.totalPages}
-          onPageChange={setPage}
-        />
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
+            Page <span style={{ color: 'var(--text-secondary)' }}>{pagination.page}</span> of{' '}
+            <span style={{ color: 'var(--text-secondary)' }}>{pagination.totalPages}</span>
+          </p>
+          <Pagination
+            page={pagination.page}
+            totalPages={pagination.totalPages}
+            onPageChange={setPage}
+          />
+        </div>
       )}
 
       <LeadModal

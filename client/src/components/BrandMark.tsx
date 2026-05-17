@@ -15,7 +15,7 @@ const BrandMark = ({ className = '', showText = false }: BrandMarkProps) => {
         className="h-11 w-11 shrink-0"
         viewBox="0 0 64 64"
         role="img"
-        aria-label="Smart Leads symbol"
+        aria-label="Quilnox symbol"
       >
         <defs>
           <linearGradient id={backgroundId} x1="8" x2="56" y1="8" y2="56" gradientUnits="userSpaceOnUse">
@@ -61,8 +61,12 @@ const BrandMark = ({ className = '', showText = false }: BrandMarkProps) => {
       </svg>
       {showText && (
         <div>
-          <p className="text-lg font-bold leading-tight text-slate-950 dark:text-white">Smart Leads</p>
-          <p className="text-sm leading-tight text-slate-500 dark:text-slate-400">Lead management</p>
+          <p className="font-display text-lg font-bold leading-tight" style={{ color: 'var(--text-primary)' }}>
+            Quilnox
+          </p>
+          <p className="text-sm leading-tight" style={{ color: 'var(--text-secondary)' }}>
+            Lead intelligence
+          </p>
         </div>
       )}
     </div>

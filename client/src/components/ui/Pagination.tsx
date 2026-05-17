@@ -1,4 +1,4 @@
-import Button from './Button';
+import { ChevronLeftIcon, ChevronRightIcon } from './Icons';
 
 interface PaginationProps {
   page: number;
@@ -30,19 +30,21 @@ const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
   }
 
   return (
-    <nav className="flex flex-wrap items-center justify-between gap-3">
-      <Button
+    <nav className="flex flex-wrap items-center justify-end gap-2">
+      <button
         type="button"
-        variant="secondary"
         onClick={() => onPageChange(page - 1)}
         disabled={page <= 1}
+        className="btn-secondary h-9 w-9 p-0 disabled:cursor-not-allowed disabled:opacity-30"
+        aria-label="Previous page"
       >
-        Previous
-      </Button>
+        <ChevronLeftIcon className="h-4 w-4" />
+      </button>
+
       <div className="flex items-center gap-1">
         {getPages(page, totalPages).map((item, index) =>
           item === 'ellipsis' ? (
-            <span key={`ellipsis-${index}`} className="px-2 text-slate-500">
+            <span key={`ellipsis-${index}`} className="px-2 text-xs" style={{ color: 'var(--text-muted)' }}>
               ...
             </span>
           ) : (
@@ -50,21 +52,28 @@ const Pagination = ({ page, totalPages, onPageChange }: PaginationProps) => {
               key={item}
               type="button"
               onClick={() => onPageChange(item)}
-              className={`h-9 min-w-9 rounded-md px-3 text-sm font-medium ${item === page ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800'}`}
+              className="h-9 min-w-9 rounded-lg px-3 text-sm font-medium transition-all"
+              style={
+                item === page
+                  ? { background: 'var(--accent)', color: 'white' }
+                  : { background: 'var(--surface-3)', color: 'var(--text-secondary)' }
+              }
             >
               {item}
             </button>
           )
         )}
       </div>
-      <Button
+
+      <button
         type="button"
-        variant="secondary"
         onClick={() => onPageChange(page + 1)}
         disabled={page >= totalPages}
+        className="btn-secondary h-9 w-9 p-0 disabled:cursor-not-allowed disabled:opacity-30"
+        aria-label="Next page"
       >
-        Next
-      </Button>
+        <ChevronRightIcon className="h-4 w-4" />
+      </button>
     </nav>
   );
 };

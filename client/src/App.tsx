@@ -3,6 +3,7 @@ import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import { AuthProvider } from './context/AuthContext';
 import { ThemeProvider } from './context/ThemeContext';
+import AboutPage from './pages/AboutPage';
 import DashboardPage from './pages/DashboardPage';
 import LeadsPage from './pages/LeadsPage';
 import LoginPage from './pages/LoginPage';
@@ -31,6 +32,14 @@ const App = () => {
                 element={
                   <Layout>
                     <LeadsPage />
+                  </Layout>
+                }
+              />
+              <Route
+                path="/about"
+                element={
+                  <Layout>
+                    <AboutPage />
                   </Layout>
                 }
               />

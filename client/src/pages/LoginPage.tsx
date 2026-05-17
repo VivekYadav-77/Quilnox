@@ -4,6 +4,8 @@ import type { FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { loginApi } from '../api/authApi';
 import BrandMark from '../components/BrandMark';
+import Button from '../components/ui/Button';
+import { AlertIcon, ArrowRightIcon } from '../components/ui/Icons';
 import { useAuth } from '../hooks/useAuth';
 import type { ApiResponse } from '../types';
 
@@ -51,65 +53,84 @@ const LoginPage = () => {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 dark:bg-slate-950">
-      <section className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
-        <BrandMark showText className="mb-6" />
-        <div className="mb-6">
-          <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
-            Sign in
-          </h1>
-          <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">
-            Access your lead dashboard.
-          </p>
+    <main
+      className="relative flex min-h-screen items-center justify-center overflow-hidden px-4 py-10"
+      style={{ background: 'var(--surface)' }}
+    >
+      <div
+        className="absolute inset-0 opacity-40"
+        style={{
+          backgroundImage:
+            'linear-gradient(var(--border) 1px, transparent 1px), linear-gradient(90deg, var(--border) 1px, transparent 1px)',
+          backgroundSize: '48px 48px',
+        }}
+      />
+      <div className="absolute inset-x-0 top-0 h-px" style={{ background: 'var(--accent)' }} />
+
+      <section className="relative w-full max-w-sm animate-slide-up">
+        <div className="mb-8 flex justify-center">
+          <BrandMark showText />
         </div>
 
-        {error && (
-          <div className="mb-4 rounded-md border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700">
-            {error}
+        <div className="app-card p-6 shadow-2xl shadow-black/30">
+          <div className="mb-6">
+            <h1 className="font-display text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>
+              Sign in
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: 'var(--text-secondary)' }}>
+              Access your lead command center.
+            </p>
           </div>
-        )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Email
-            </span>
-            <input
-              type="email"
-              value={email}
-              onChange={(event) => setEmail(event.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="you@example.com"
-            />
-          </label>
+          {error && (
+            <div
+              className="mb-5 flex items-center gap-2.5 rounded-lg p-3 text-sm animate-fade-in"
+              style={{
+                background: 'rgba(239, 68, 68, 0.08)',
+                border: '1px solid rgba(239, 68, 68, 0.2)',
+                color: '#fca5a5',
+              }}
+            >
+              <AlertIcon className="h-4 w-4 shrink-0" />
+              {error}
+            </div>
+          )}
 
-          <label className="block">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Password
-            </span>
-            <input
-              type="password"
-              value={password}
-              onChange={(event) => setPassword(event.target.value)}
-              required
-              className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
-              placeholder="Enter your password"
-            />
-          </label>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <label className="block">
+              <span className="label">Email</span>
+              <input
+                type="email"
+                value={email}
+                onChange={(event) => setEmail(event.target.value)}
+                required
+                className="input-field"
+                placeholder="you@company.com"
+              />
+            </label>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full rounded-md bg-blue-600 px-4 py-2 font-medium text-white transition hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {loading ? 'Signing in...' : 'Sign in'}
-          </button>
-        </form>
+            <label className="block">
+              <span className="label">Password</span>
+              <input
+                type="password"
+                value={password}
+                onChange={(event) => setPassword(event.target.value)}
+                required
+                className="input-field"
+                placeholder="Enter your password"
+              />
+            </label>
 
-        <p className="mt-5 text-center text-sm text-slate-600 dark:text-slate-400">
+            <Button type="submit" loading={loading} className="w-full">
+              Sign in
+              <ArrowRightIcon className="h-4 w-4" />
+            </Button>
+          </form>
+        </div>
+
+        <p className="mt-5 text-center text-sm" style={{ color: 'var(--text-muted)' }}>
           Need an account?{' '}
-          <Link to="/register" className="font-medium text-blue-600 hover:underline">
+          <Link to="/register" className="font-medium hover:underline" style={{ color: 'var(--accent)' }}>
             Register
           </Link>
         </p>

@@ -24,7 +24,7 @@ const Input = ({
   return (
     <label className="block">
       {label && (
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+        <span className="label">
           {label}
         </span>
       )}
@@ -35,9 +35,9 @@ const Input = ({
         onBlur={onBlur}
         required={required}
         placeholder={placeholder}
-        className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+        className="input-field"
       />
-      {error && <p className="mt-1 text-xs text-red-600">{error}</p>}
+      {error && <p className="mt-1 text-xs" style={{ color: 'var(--danger)' }}>{error}</p>}
     </label>
   );
 };

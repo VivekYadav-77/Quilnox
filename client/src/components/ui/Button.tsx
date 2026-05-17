@@ -8,16 +8,16 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<NonNullable<ButtonProps['variant']>, string> = {
-  primary: 'bg-blue-600 text-white hover:bg-blue-700',
-  secondary: 'bg-white text-slate-700 ring-1 ring-slate-300 hover:bg-slate-50',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
-  ghost: 'bg-transparent text-slate-600 hover:bg-slate-100',
+  primary: 'btn-primary',
+  secondary: 'btn-secondary',
+  danger: 'btn-danger',
+  ghost: 'btn-ghost',
 };
 
 const sizes: Record<NonNullable<ButtonProps['size']>, string> = {
-  sm: 'px-3 py-1.5 text-sm',
-  md: 'px-4 py-2 text-sm',
-  lg: 'px-5 py-2.5 text-base',
+  sm: 'min-h-8 px-3 py-1.5 text-xs',
+  md: 'min-h-10 px-4 py-2 text-sm',
+  lg: 'min-h-11 px-5 py-2.5 text-base',
 };
 
 const Button = ({
@@ -31,11 +31,18 @@ const Button = ({
 }: ButtonProps) => {
   return (
     <button
-      className={`inline-flex items-center justify-center rounded-md font-medium transition disabled:cursor-not-allowed disabled:opacity-60 ${variants[variant]} ${sizes[size]} ${className}`}
+      className={`disabled:cursor-not-allowed disabled:opacity-55 ${variants[variant]} ${sizes[size]} ${className}`}
       disabled={disabled || loading}
       {...props}
     >
-      {loading ? 'Loading...' : children}
+      {loading ? (
+        <>
+          <span className="h-3.5 w-3.5 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+          Loading
+        </>
+      ) : (
+        children
+      )}
     </button>
   );
 };

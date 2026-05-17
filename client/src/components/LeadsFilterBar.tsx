@@ -1,5 +1,5 @@
 import type { LeadSource, LeadStatus, SortOrder } from '../types';
-import Select from './ui/Select';
+import { CloseIcon, SearchIcon } from './ui/Icons';
 
 interface LeadsFilterBarProps {
   searchInput: string;
@@ -12,20 +12,8 @@ interface LeadsFilterBarProps {
   onSortChange: (value: SortOrder) => void;
 }
 
-const statusOptions = ['New', 'Contacted', 'Qualified', 'Lost'].map((value) => ({
-  value,
-  label: value,
-}));
-
-const sourceOptions = ['Website', 'Instagram', 'Referral'].map((value) => ({
-  value,
-  label: value,
-}));
-
-const sortOptions = [
-  { value: 'latest', label: 'Latest first' },
-  { value: 'oldest', label: 'Oldest first' },
-];
+const statuses: LeadStatus[] = ['New', 'Contacted', 'Qualified', 'Lost'];
+const sources: LeadSource[] = ['Website', 'Instagram', 'Referral'];
 
 const LeadsFilterBar = ({
   searchInput,
@@ -37,39 +25,85 @@ const LeadsFilterBar = ({
   onSourceChange,
   onSortChange,
 }: LeadsFilterBarProps) => {
+  const hasFilters = Boolean(searchInput || status || source || sort !== 'latest');
+
   return (
-    <section className="grid gap-3 rounded-lg bg-white p-4 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800 md:grid-cols-4">
-      <label className="block">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          Search
-        </span>
+    <section className="app-card flex flex-col gap-3 p-3 lg:flex-row lg:items-center">
+      <div className="relative min-w-0 flex-1">
+        <SearchIcon className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2" style={{ color: 'var(--text-muted)' }} />
         <input
           value={searchInput}
           onChange={(event) => onSearchChange(event.target.value)}
-          placeholder="Name or email"
-          className="mt-1 block w-full rounded-md border-slate-300 text-slate-950 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-950 dark:text-white"
+          placeholder="Search by name or email..."
+          className="input-field pl-9 pr-9"
         />
-      </label>
-      <Select
-        label="Status"
-        value={status}
-        options={statusOptions}
-        onChange={(value) => onStatusChange(value as LeadStatus | '')}
-        placeholder="All statuses"
-      />
-      <Select
-        label="Source"
-        value={source}
-        options={sourceOptions}
-        onChange={(value) => onSourceChange(value as LeadSource | '')}
-        placeholder="All sources"
-      />
-      <Select
-        label="Sort"
-        value={sort}
-        options={sortOptions}
-        onChange={(value) => onSortChange(value as SortOrder)}
-      />
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => onSearchChange('')}
+            className="btn-ghost absolute right-1.5 top-1/2 h-7 w-7 -translate-y-1/2 p-0"
+            aria-label="Clear search"
+          >
+            <CloseIcon className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
+
+      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:flex">
+        <select
+          value={status}
+          onChange={(event) => onStatusChange(event.target.value as LeadStatus | '')}
+          className="input-field lg:w-36"
+          aria-label="Filter by status"
+        >
+          <option value="">All Statuses</option>
+          {statuses.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={source}
+          onChange={(event) => onSourceChange(event.target.value as LeadSource | '')}
+          className="input-field lg:w-36"
+          aria-label="Filter by source"
+        >
+          <option value="">All Sources</option>
+          {sources.map((item) => (
+            <option key={item} value={item}>
+              {item}
+            </option>
+          ))}
+        </select>
+
+        <select
+          value={sort}
+          onChange={(event) => onSortChange(event.target.value as SortOrder)}
+          className="input-field lg:w-32"
+          aria-label="Sort leads"
+        >
+          <option value="latest">Latest</option>
+          <option value="oldest">Oldest</option>
+        </select>
+
+        {hasFilters && (
+          <button
+            type="button"
+            onClick={() => {
+              onSearchChange('');
+              onStatusChange('');
+              onSourceChange('');
+              onSortChange('latest');
+            }}
+            className="btn-ghost text-xs"
+            style={{ color: '#fca5a5' }}
+          >
+            Clear
+          </button>
+        )}
+      </div>
     </section>
   );
 };

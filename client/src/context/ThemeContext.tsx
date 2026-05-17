@@ -10,7 +10,7 @@ interface ThemeProviderProps {
 const getStoredTheme = (): Theme => {
   const storedTheme = localStorage.getItem('theme');
 
-  return storedTheme === 'dark' ? 'dark' : 'light';
+  return storedTheme === 'light' ? 'light' : 'dark';
 };
 
 export const ThemeProvider = ({ children }: ThemeProviderProps) => {

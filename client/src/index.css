@@ -1,7 +1,164 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;1,400&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --accent: #4f6ef7;
+  --accent-dim: #3b55d4;
+  --accent-glow: rgba(79, 110, 247, 0.18);
+  --surface: #f5f7fb;
+  --surface-2: #ffffff;
+  --surface-3: #eef2f8;
+  --surface-4: #dfe6f1;
+  --border: rgba(15, 23, 42, 0.1);
+  --border-hover: rgba(15, 23, 42, 0.18);
+  --text-primary: #0f172a;
+  --text-secondary: #475569;
+  --text-muted: #94a3b8;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --font-display: 'Syne', sans-serif;
+  --font-body: 'DM Sans', sans-serif;
+  color-scheme: light;
+}
+
+.dark {
+  --accent: #4f6ef7;
+  --accent-dim: #3b55d4;
+  --accent-glow: rgba(79, 110, 247, 0.25);
+  --surface: #0f1117;
+  --surface-2: #161b27;
+  --surface-3: #1e2535;
+  --surface-4: #252d3d;
+  --border: rgba(255, 255, 255, 0.07);
+  --border-hover: rgba(255, 255, 255, 0.14);
+  --text-primary: #f0f4ff;
+  --text-secondary: #8892a4;
+  --text-muted: #4b5568;
+  color-scheme: dark;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
   margin: 0;
+  background: var(--surface);
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+::-webkit-scrollbar {
+  height: 6px;
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-2);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-4);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+}
+
+::selection {
+  background: var(--accent-glow);
+  color: var(--text-primary);
+}
+
+@layer components {
+  .app-card {
+    @apply rounded-lg border;
+    background: var(--surface-2);
+    border-color: var(--border);
+  }
+
+  .app-card-hover {
+    @apply app-card transition-all duration-200;
+  }
+
+  .app-card-hover:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+    transform: translateY(-1px);
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium transition-all duration-150;
+    background: var(--accent);
+    color: white;
+  }
+
+  .btn-primary:hover {
+    background: var(--accent-dim);
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-150;
+    background: var(--surface-3);
+    border-color: var(--border);
+    color: var(--text-secondary);
+  }
+
+  .btn-secondary:hover {
+    background: var(--surface-4);
+    border-color: var(--border-hover);
+    color: var(--text-primary);
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-3 py-2 text-sm transition-all duration-150;
+    color: var(--text-secondary);
+  }
+
+  .btn-ghost:hover {
+    background: var(--surface-3);
+    color: var(--text-primary);
+  }
+
+  .btn-danger {
+    @apply inline-flex items-center justify-center gap-2 rounded-lg border px-4 py-2 text-sm font-medium transition-all duration-150;
+    background: rgba(239, 68, 68, 0.12);
+    border-color: rgba(239, 68, 68, 0.22);
+    color: #fca5a5;
+  }
+
+  .btn-danger:hover {
+    background: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  .input-field {
+    @apply w-full rounded-lg px-3 py-2.5 text-sm outline-none transition-all duration-150;
+    background: var(--surface-3);
+    border: 1px solid var(--border);
+    color: var(--text-primary);
+  }
+
+  .input-field::placeholder {
+    color: var(--text-muted);
+  }
+
+  .input-field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-glow);
+  }
+
+  .label {
+    @apply mb-1.5 block text-xs font-medium uppercase;
+    color: var(--text-secondary);
+    letter-spacing: 0.04em;
+  }
 }
