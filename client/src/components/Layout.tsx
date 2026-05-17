@@ -1,6 +1,7 @@
 import { NavLink, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import BrandMark from './BrandMark';
 import Button from './ui/Button';
 import TopBar from './TopBar';
 
@@ -32,8 +33,7 @@ const Layout = ({ children }: LayoutProps) => {
   const sidebar = (
     <aside className="flex h-full w-72 flex-col border-r border-slate-200 bg-white p-4 dark:border-slate-800 dark:bg-slate-950">
       <div className="mb-8">
-        <p className="text-lg font-bold text-slate-950 dark:text-white">Smart Leads</p>
-        <p className="text-sm text-slate-500">Lead management</p>
+        <BrandMark showText />
       </div>
       <nav className="flex flex-1 flex-col gap-1">
         {navItems.map((item) => (

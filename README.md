@@ -1,6 +1,14 @@
+<p align="center">
+  <img src="client/public/brand-mark.svg" alt="Smart Leads custom symbol" width="96" height="96" />
+</p>
+
 # Smart Leads Dashboard
 
 A full-stack lead management dashboard for sales teams. Users can register, sign in, manage leads, filter and search records, paginate server-side results, export visible lead data to CSV, and use role-aware controls for admin and sales users.
+
+## Project Symbol
+
+The custom Smart Leads symbol combines a lead funnel, a rising conversion path, and a verified lead node. It is used as the browser favicon, in-app brand mark, and README identity asset.
 
 ## Tech Stack
 

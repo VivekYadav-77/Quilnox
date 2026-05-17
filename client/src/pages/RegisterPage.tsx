@@ -3,6 +3,7 @@ import { useState } from 'react';
 import type { FormEvent } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { registerApi } from '../api/authApi';
+import BrandMark from '../components/BrandMark';
 import { useAuth } from '../hooks/useAuth';
 import type { ApiResponse, UserRole } from '../types';
 
@@ -54,6 +55,7 @@ const RegisterPage = () => {
   return (
     <main className="flex min-h-screen items-center justify-center bg-slate-100 px-4 py-10 dark:bg-slate-950">
       <section className="w-full max-w-md rounded-lg bg-white p-8 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">
+        <BrandMark showText className="mb-6" />
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-slate-950 dark:text-white">
             Create account
