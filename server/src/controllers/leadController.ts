@@ -1,8 +1,10 @@
 import { Request, Response } from 'express';
 import { ValidationError, validationResult } from 'express-validator';
-import mongoose, { Types, UpdateQuery } from 'mongoose';
+import { Types, UpdateQuery } from 'mongoose';
 import { ILead, Lead } from '../models/Lead';
 import { AuthPayload, LeadSource, LeadStatus } from '../types';
+import { getErrorMessage, sendValidationError } from '../utils/errorResponse';
+import { isValidObjectId } from '../utils/objectId';
 
 interface LeadRequestBody {
   name?: string;
@@ -107,11 +109,11 @@ const buildLeadFilter = (
 };
 
 const validateObjectId = (id: string, res: Response): boolean => {
-  if (mongoose.Types.ObjectId.isValid(id)) {
+  if (isValidObjectId(id)) {
     return true;
   }
 
-  res.status(400).json({ success: false, message: 'Invalid lead id' });
+  res.status(400).json({ success: false, message: 'Invalid lead ID' });
   return false;
 };
 
@@ -172,7 +174,8 @@ export const getLeads = async (
         totalPages: Math.ceil(total / limitNum),
       },
     });
-  } catch {
+  } catch (error: unknown) {
+    console.error(`Failed to fetch leads: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Failed to fetch leads' });
   }
 };
@@ -198,7 +201,8 @@ export const getLeadById = async (
     }
 
     res.json({ success: true, data: lead });
-  } catch {
+  } catch (error: unknown) {
+    console.error(`Failed to fetch lead: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Failed to fetch lead' });
   }
 };
@@ -230,7 +234,12 @@ export const createLead = async (
     });
 
     res.status(201).json({ success: true, data: lead });
-  } catch {
+  } catch (error: unknown) {
+    if (sendValidationError(error, res, 'Lead validation failed')) {
+      return;
+    }
+
+    console.error(`Failed to create lead: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Failed to create lead' });
   }
 };
@@ -272,7 +281,12 @@ export const updateLead = async (
     ).populate('createdBy', 'name email');
 
     res.json({ success: true, data: updatedLead });
-  } catch {
+  } catch (error: unknown) {
+    if (sendValidationError(error, res, 'Lead validation failed')) {
+      return;
+    }
+
+    console.error(`Failed to update lead: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Failed to update lead' });
   }
 };
@@ -294,7 +308,8 @@ export const deleteLead = async (
     }
 
     res.json({ success: true, message: 'Lead deleted successfully' });
-  } catch {
+  } catch (error: unknown) {
+    console.error(`Failed to delete lead: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Failed to delete lead' });
   }
 };

@@ -7,7 +7,8 @@ import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
 import leadRoutes from './routes/leadRoutes';
 
-dotenv.config({ path: path.resolve(__dirname, '../../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '../.env') });
+dotenv.config({ path: path.resolve(process.cwd(), '.env'), override: true });
 
 const app: Application = express();
 const PORT = process.env.PORT || 5000;

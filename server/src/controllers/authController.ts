@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { ValidationError, validationResult } from 'express-validator';
 import { User } from '../models/User';
 import { UserRole } from '../types';
+import { getErrorMessage, sendValidationError } from '../utils/errorResponse';
 import { comparePassword, hashPassword } from '../utils/password';
 import { generateToken } from '../utils/token';
 
@@ -59,7 +60,12 @@ export const register = async (
       success: true,
       data: { user, token },
     });
-  } catch {
+  } catch (error: unknown) {
+    if (sendValidationError(error, res, 'User validation failed')) {
+      return;
+    }
+
+    console.error(`Registration failed: ${getErrorMessage(error)}`);
     res.status(500).json({
       success: false,
       message: 'Server error during registration',
@@ -104,7 +110,8 @@ export const login = async (
       success: true,
       data: { user, token },
     });
-  } catch {
+  } catch (error: unknown) {
+    console.error(`Login failed: ${getErrorMessage(error)}`);
     res.status(500).json({ success: false, message: 'Server error during login' });
   }
 };
