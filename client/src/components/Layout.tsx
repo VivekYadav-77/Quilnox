@@ -1,8 +1,10 @@
 import { NavLink, useLocation } from 'react-router-dom';
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
+import { useKonami } from '../hooks/useKonami';
 import BrandMark from './BrandMark';
 import DarkModeToggle from './DarkModeToggle';
+import EasterEggToast from './EasterEggToast';
 import Button from './ui/Button';
 import { DashboardIcon, LogoutIcon, MenuIcon, UserIcon, UsersIcon } from './ui/Icons';
 
@@ -26,6 +28,17 @@ const Layout = ({ children }: LayoutProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+  const [easterEggVisible, setEasterEggVisible] = useState<boolean>(false);
+
+  const activateEasterEgg = useCallback(() => {
+    setEasterEggVisible((current) => current || true);
+  }, []);
+
+  const dismissEasterEgg = useCallback(() => {
+    setEasterEggVisible(false);
+  }, []);
+
+  useKonami(activateEasterEgg);
 
   const userInitial = user?.name?.charAt(0).toUpperCase() || 'U';
 
@@ -145,6 +158,7 @@ const Layout = ({ children }: LayoutProps) => {
 
         <main className="flex-1 overflow-y-auto p-4 animate-fade-in md:p-6">{children}</main>
       </div>
+      <EasterEggToast visible={easterEggVisible} onDone={dismissEasterEgg} />
     </div>
   );
 };
