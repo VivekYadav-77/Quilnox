@@ -1,17 +1,18 @@
 import { useMemo, useState } from 'react';
 import { deleteLeadApi } from '../api/leadsApi';
+import ExportCSVButton from '../components/ExportCSVButton';
 import LeadsFilterBar from '../components/LeadsFilterBar';
 import LeadModal from '../components/LeadModal';
 import LeadsTable from '../components/LeadsTable';
 import Button from '../components/ui/Button';
 import Pagination from '../components/ui/Pagination';
-import { useAuth } from '../hooks/useAuth';
 import { useDebounce } from '../hooks/useDebounce';
 import { useLeads } from '../hooks/useLeads';
+import { useRBAC } from '../hooks/useRBAC';
 import type { Lead, LeadFilters, LeadSource, LeadStatus, SortOrder } from '../types';
 
 const LeadsPage = () => {
-  const { isAdmin } = useAuth();
+  const { canCreate } = useRBAC();
   const [searchInput, setSearchInput] = useState<string>('');
   const [status, setStatus] = useState<LeadStatus | ''>('');
   const [source, setSource] = useState<LeadSource | ''>('');
@@ -85,9 +86,14 @@ const LeadsPage = () => {
           </p>
           <p className="text-sm text-slate-500">Manage and track your pipeline.</p>
         </div>
-        <Button type="button" onClick={openCreateModal}>
-          Create lead
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <ExportCSVButton leads={leads} disabled={loading} />
+          {canCreate && (
+            <Button type="button" onClick={openCreateModal}>
+              Create lead
+            </Button>
+          )}
+        </div>
       </section>
 
       {(error || deleteError) && (
@@ -110,7 +116,6 @@ const LeadsPage = () => {
           setModalOpen(true);
         }}
         onDelete={handleDelete}
-        isAdmin={isAdmin}
       />
 
       {pagination && (

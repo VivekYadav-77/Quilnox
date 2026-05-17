@@ -1,4 +1,5 @@
 import type { Lead } from '../types';
+import { useRBAC } from '../hooks/useRBAC';
 import Badge from './ui/Badge';
 import Button from './ui/Button';
 import EmptyState from './ui/EmptyState';
@@ -9,7 +10,6 @@ interface LeadsTableProps {
   onCreate: () => void;
   onEdit: (lead: Lead) => void;
   onDelete: (leadId: string) => void;
-  isAdmin: boolean;
 }
 
 const formatDate = (value: string): string => {
@@ -39,8 +39,9 @@ const LeadsTable = ({
   onCreate,
   onEdit,
   onDelete,
-  isAdmin,
 }: LeadsTableProps) => {
+  const { canEdit, canDelete } = useRBAC();
+
   if (!loading && leads.length === 0) {
     return (
       <EmptyState
@@ -90,10 +91,12 @@ const LeadsTable = ({
                   </td>
                   <td className="px-4 py-4">
                     <div className="flex gap-2">
-                      <Button type="button" variant="secondary" size="sm" onClick={() => onEdit(lead)}>
-                        Edit
-                      </Button>
-                      {isAdmin && (
+                      {canEdit(lead) && (
+                        <Button type="button" variant="secondary" size="sm" onClick={() => onEdit(lead)}>
+                          Edit
+                        </Button>
+                      )}
+                      {canDelete && (
                         <Button type="button" variant="danger" size="sm" onClick={() => onDelete(lead._id)}>
                           Delete
                         </Button>

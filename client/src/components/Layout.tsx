@@ -18,6 +18,12 @@ const getTitle = (pathname: string): string => {
   return 'Dashboard';
 };
 
+const roleBadgeClass = (role: string | undefined): string => {
+  return role === 'admin'
+    ? 'bg-blue-100 text-blue-700 dark:bg-blue-950 dark:text-blue-200'
+    : 'bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-200';
+};
+
 const Layout = ({ children }: LayoutProps) => {
   const { user, logout } = useAuth();
   const location = useLocation();
@@ -48,8 +54,13 @@ const Layout = ({ children }: LayoutProps) => {
         ))}
       </nav>
       <div className="border-t border-slate-200 pt-4 dark:border-slate-800">
-        <p className="font-medium text-slate-950 dark:text-white">{user?.name}</p>
-        <p className="text-sm capitalize text-slate-500">{user?.role}</p>
+        <div className="flex items-center justify-between gap-3">
+          <p className="font-medium text-slate-950 dark:text-white">{user?.name}</p>
+          <span className={`rounded-full px-2 py-1 text-xs font-medium capitalize ${roleBadgeClass(user?.role)}`}>
+            {user?.role}
+          </span>
+        </div>
+        <p className="mt-1 text-sm text-slate-500">{user?.email}</p>
         <Button type="button" variant="secondary" className="mt-3 w-full" onClick={logout}>
           Logout
         </Button>

@@ -1,3 +1,4 @@
+import DarkModeToggle from './DarkModeToggle';
 import Button from './ui/Button';
 
 interface TopBarProps {
@@ -20,7 +21,7 @@ const TopBar = ({ title, onMenuClick }: TopBarProps) => {
         </Button>
         <h1 className="text-lg font-semibold text-slate-950 dark:text-white">{title}</h1>
       </div>
-      <span className="text-sm text-slate-500">Dark mode in Phase 6</span>
+      <DarkModeToggle />
     </header>
   );
 };
