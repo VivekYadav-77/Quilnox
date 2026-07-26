@@ -1,54 +1,65 @@
-import mongoose, { Document, Schema, Types } from 'mongoose';
+import { GetCommand, PutCommand, QueryCommand } from '@aws-sdk/lib-dynamodb';
+import { dynamo, USERS_TABLE } from '../config/dynamo';
 import { UserRole } from '../types';
 
-export interface IUser extends Document {
-  _id: Types.ObjectId;
-  name: string;
+export interface IUser {
+  userId: string;
   email: string;
-  password: string;
+  name: string;
+  password?: string;
   role: UserRole;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 }
 
-type UserJson = Omit<IUser, 'password'> & {
-  password?: string;
+export type CreateUserInput = Omit<IUser, 'createdAt' | 'updatedAt'>;
+
+export const findUserByEmail = async (email: string): Promise<IUser | null> => {
+  const result = await dynamo.send(
+    new QueryCommand({
+      TableName: USERS_TABLE,
+      IndexName: 'EmailIndex',
+      KeyConditionExpression: 'email = :email',
+      ExpressionAttributeValues: {
+        ':email': email,
+      },
+    })
+  );
+
+  return (result.Items?.[0] as IUser) || null;
 };
 
-const userSchema = new Schema<IUser>(
-  {
-    name: {
-      type: String,
-      required: [true, 'Name is required'],
-      trim: true,
-      maxlength: [100, 'Name cannot exceed 100 characters'],
-    },
-    email: {
-      type: String,
-      required: [true, 'Email is required'],
-      unique: true,
-      lowercase: true,
-      trim: true,
-    },
-    password: {
-      type: String,
-      required: [true, 'Password is required'],
-      minlength: [8, 'Password must be at least 8 characters'],
-      select: false,
-    },
-    role: {
-      type: String,
-      enum: ['admin', 'sales'] satisfies UserRole[],
-      default: 'sales',
-    },
-  },
-  { timestamps: true }
-);
+export const findUserById = async (userId: string): Promise<IUser | null> => {
+  const result = await dynamo.send(
+    new GetCommand({
+      TableName: USERS_TABLE,
+      Key: { userId },
+    })
+  );
 
-userSchema.methods.toJSON = function toJSON(): Omit<IUser, 'password'> {
-  const userObject = this.toObject() as UserJson;
-  delete userObject.password;
-  return userObject;
+  return (result.Item as IUser) || null;
 };
 
-export const User = mongoose.model<IUser>('User', userSchema);
+export const createUser = async (data: CreateUserInput): Promise<IUser> => {
+  const now = new Date().toISOString();
+  
+  const user: IUser = {
+    ...data,
+    createdAt: now,
+    updatedAt: now,
+  };
+
+  await dynamo.send(
+    new PutCommand({
+      TableName: USERS_TABLE,
+      Item: user,
+    })
+  );
+
+  return user;
+};
+
+export const sanitizeUser = (user: IUser): Omit<IUser, 'password'> => {
+  const { password, ...safeUser } = user;
+  return safeUser;
+};

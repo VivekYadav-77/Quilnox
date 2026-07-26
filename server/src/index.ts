@@ -3,7 +3,7 @@ import cors from 'cors';
 import type { CorsOptions } from 'cors';
 import dotenv from 'dotenv';
 import path from 'path';
-import connectDB from './config/db';
+
 import { errorHandler } from './middleware/errorHandler';
 import authRoutes from './routes/authRoutes';
 import leadRoutes from './routes/leadRoutes';
@@ -25,7 +25,7 @@ const splitOrigins = (value: string | undefined): string[] => {
 const allowedOrigins = [
   ...splitOrigins(process.env.CLIENT_ORIGIN),
   ...splitOrigins(process.env.CLIENT_ORIGINS),
-  'https://quilnox.vercel.app',
+
   'http://localhost:5173',
   'http://127.0.0.1:5173',
   'http://localhost:3000',
@@ -60,7 +60,7 @@ app.use('/leads', leadRoutes);
 app.use(errorHandler);
 
 const startServer = async (): Promise<void> => {
-  await connectDB();
+
 
   app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

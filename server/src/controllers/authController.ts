@@ -1,10 +1,11 @@
 import { Request, Response } from 'express';
 import { ValidationError, validationResult } from 'express-validator';
-import { User } from '../models/User';
+import { createUser, findUserByEmail, sanitizeUser } from '../models/User';
 import { UserRole } from '../types';
 import { getErrorMessage, sendValidationError } from '../utils/errorResponse';
 import { comparePassword, hashPassword } from '../utils/password';
 import { generateToken } from '../utils/token';
+import { v4 as uuidv4 } from 'uuid';
 
 interface RegisterRequestBody {
   name: string;
@@ -39,7 +40,7 @@ export const register = async (
   const { name, email, password, role } = req.body;
 
   try {
-    const existingUser = await User.findOne({ email });
+    const existingUser = await findUserByEmail(email);
 
     if (existingUser) {
       res.status(400).json({ success: false, message: 'Email already registered' });
@@ -47,18 +48,21 @@ export const register = async (
     }
 
     const hashedPassword = await hashPassword(password);
-    const user = await User.create({
+    const userId = uuidv4();
+    const user = await createUser({
+      userId,
       name,
       email,
       password: hashedPassword,
-      role,
+      role: role || 'sales',
     });
 
-    const token = generateToken({ id: user._id.toString(), role: user.role });
+    const token = generateToken({ id: user.userId, role: user.role });
+    const safeUser = sanitizeUser(user);
 
     res.status(201).json({
       success: true,
-      data: { user, token },
+      data: { user: safeUser, token },
     });
   } catch (error: unknown) {
     if (sendValidationError(error, res, 'User validation failed')) {
@@ -90,9 +94,9 @@ export const login = async (
   const { email, password } = req.body;
 
   try {
-    const user = await User.findOne({ email }).select('+password');
+    const user = await findUserByEmail(email);
 
-    if (!user) {
+    if (!user || !user.password) {
       res.status(401).json({ success: false, message: 'Invalid credentials' });
       return;
     }
@@ -104,11 +108,12 @@ export const login = async (
       return;
     }
 
-    const token = generateToken({ id: user._id.toString(), role: user.role });
+    const token = generateToken({ id: user.userId, role: user.role });
+    const safeUser = sanitizeUser(user);
 
     res.json({
       success: true,
-      data: { user, token },
+      data: { user: safeUser, token },
     });
   } catch (error: unknown) {
     console.error(`Login failed: ${getErrorMessage(error)}`);

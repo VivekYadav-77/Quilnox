@@ -30,6 +30,8 @@ dist-ssr
 # Ignore planning docs
 PHASE_*.md
 MASTER_PLAN.md
+AWS_DEPLOYMENT_GUIDE.md
+prompt.md
 
 # Keep README
 !README.md

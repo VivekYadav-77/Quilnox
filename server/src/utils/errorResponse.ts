@@ -1,4 +1,3 @@
-import mongoose from 'mongoose';
 import { Response } from 'express';
 
 export const getErrorMessage = (error: unknown): string => {
@@ -10,17 +9,19 @@ export const sendValidationError = (
   res: Response,
   fallbackMessage: string
 ): boolean => {
-  if (!(error instanceof mongoose.Error.ValidationError)) {
-    return false;
+  // Mongoose is removed, so we don't have mongoose.Error.ValidationError anymore.
+  // Express-validator errors are caught in the controller.
+  // If we wanted to catch specific DynamoDB ValidationException errors, we could check here.
+  // For now, we'll just check if it's an Error and has 'name' === 'ValidationException' (DynamoDB style)
+  
+  if (error instanceof Error && error.name === 'ValidationException') {
+    res.status(400).json({
+      success: false,
+      message: fallbackMessage,
+      errors: [error.message],
+    });
+    return true;
   }
 
-  const errors = Object.values(error.errors).map((item) => item.message);
-
-  res.status(400).json({
-    success: false,
-    message: fallbackMessage,
-    errors,
-  });
-
-  return true;
+  return false;
 };

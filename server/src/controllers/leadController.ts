@@ -1,10 +1,9 @@
 import { Request, Response } from 'express';
 import { ValidationError, validationResult } from 'express-validator';
-import { Types, UpdateQuery } from 'mongoose';
-import { ILead, Lead } from '../models/Lead';
+import { createLead as createLeadModel, deleteLead as deleteLeadModel, getLeadById as getLeadByIdModel, getLeads as getLeadsModel, ILead, updateLead as updateLeadModel } from '../models/Lead';
 import { AuthPayload, LeadSource, LeadStatus } from '../types';
 import { getErrorMessage, sendValidationError } from '../utils/errorResponse';
-import { isValidObjectId } from '../utils/objectId';
+import { v4 as uuidv4, validate as validateUuid } from 'uuid';
 
 interface LeadRequestBody {
   name?: string;
@@ -18,37 +17,15 @@ interface LeadQuery {
   source?: string;
   search?: string;
   sort?: string;
-  page?: string;
+  cursor?: string;
   limit?: string;
-}
-
-interface RegexFilter {
-  $regex: string;
-  $options: 'i';
-}
-
-interface LeadFilter {
-  createdBy?: Types.ObjectId;
-  status?: LeadStatus;
-  source?: LeadSource;
-  $or?: Array<{ name: RegexFilter } | { email: RegexFilter }>;
 }
 
 const LEAD_STATUSES: LeadStatus[] = ['New', 'Contacted', 'Qualified', 'Lost'];
 const LEAD_SOURCES: LeadSource[] = ['Website', 'Instagram', 'Referral'];
-const ALLOWED_UPDATE_FIELDS: Array<keyof LeadRequestBody> = [
-  'name',
-  'email',
-  'status',
-  'source',
-];
 
 const formatValidationErrors = (errors: ValidationError[]): string[] => {
   return errors.map((error) => String(error.msg));
-};
-
-const escapeRegex = (value: string): string => {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 };
 
 const parsePositiveInt = (
@@ -78,38 +55,8 @@ const getAuthenticatedUser = (req: { user?: AuthPayload }): AuthPayload => {
   return req.user;
 };
 
-const buildLeadFilter = (
-  user: AuthPayload,
-  query: LeadQuery
-): LeadFilter => {
-  const { status, source, search } = query;
-  const filter: LeadFilter = {};
-
-  if (user.role === 'sales') {
-    filter.createdBy = new Types.ObjectId(user.id);
-  }
-
-  if (isLeadStatus(status)) {
-    filter.status = status;
-  }
-
-  if (isLeadSource(source)) {
-    filter.source = source;
-  }
-
-  if (search?.trim()) {
-    const escapedSearch = escapeRegex(search.trim());
-    filter.$or = [
-      { name: { $regex: escapedSearch, $options: 'i' } },
-      { email: { $regex: escapedSearch, $options: 'i' } },
-    ];
-  }
-
-  return filter;
-};
-
-const validateObjectId = (id: string, res: Response): boolean => {
-  if (isValidObjectId(id)) {
+const validateLeadId = (id: string, res: Response): boolean => {
+  if (validateUuid(id)) {
     return true;
   }
 
@@ -120,7 +67,7 @@ const validateObjectId = (id: string, res: Response): boolean => {
 const ensureLeadAccess = (req: Request, lead: ILead, res: Response): boolean => {
   const user = getAuthenticatedUser(req);
 
-  if (user.role === 'sales' && lead.createdBy.toString() !== user.id) {
+  if (user.role === 'sales' && lead.createdBy !== user.id) {
     res.status(403).json({
       success: false,
       message: 'Not authorized to access this lead',
@@ -131,47 +78,31 @@ const ensureLeadAccess = (req: Request, lead: ILead, res: Response): boolean => 
   return true;
 };
 
-const pickLeadUpdates = (body: LeadRequestBody): UpdateQuery<ILead> => {
-  return ALLOWED_UPDATE_FIELDS.reduce<UpdateQuery<ILead>>((updates, field) => {
-    const value = body[field];
-
-    if (value !== undefined) {
-      updates[field] = value;
-    }
-
-    return updates;
-  }, {});
-};
-
 export const getLeads = async (
   req: Request<Record<string, never>, unknown, unknown, LeadQuery>,
   res: Response
 ): Promise<void> => {
   try {
-    const { sort, page, limit } = req.query;
-    const filter = buildLeadFilter(getAuthenticatedUser(req), req.query);
-    const pageNum = parsePositiveInt(page, 1);
+    const { status, source, search, sort, cursor, limit } = req.query;
+    const user = getAuthenticatedUser(req);
     const limitNum = parsePositiveInt(limit, 10, 50);
-    const skip = (pageNum - 1) * limitNum;
-    const sortOrder = sort === 'oldest' ? 1 : -1;
 
-    const [leads, total] = await Promise.all([
-      Lead.find(filter)
-        .sort({ createdAt: sortOrder })
-        .skip(skip)
-        .limit(limitNum)
-        .populate('createdBy', 'name email'),
-      Lead.countDocuments(filter),
-    ]);
+    const result = await getLeadsModel(user.role, user.id, {
+      status: isLeadStatus(status) ? status : undefined,
+      source: isLeadSource(source) ? source : undefined,
+      search: search?.trim(),
+      sort: sort === 'oldest' ? 'oldest' : 'newest',
+      cursor,
+      limit: limitNum,
+    });
 
     res.json({
       success: true,
-      data: leads,
+      data: result.items,
       pagination: {
-        total,
-        page: pageNum,
+        total: result.count, // DynamoDB cursor pagination doesn't give real total easily
         limit: limitNum,
-        totalPages: Math.ceil(total / limitNum),
+        nextCursor: result.nextCursor,
       },
     });
   } catch (error: unknown) {
@@ -184,12 +115,12 @@ export const getLeadById = async (
   req: Request<{ id: string }>,
   res: Response
 ): Promise<void> => {
-  if (!validateObjectId(req.params.id, res)) {
+  if (!validateLeadId(req.params.id, res)) {
     return;
   }
 
   try {
-    const lead = await Lead.findById(req.params.id).populate('createdBy', 'name email');
+    const lead = await getLeadByIdModel(req.params.id);
 
     if (!lead) {
       res.status(404).json({ success: false, message: 'Lead not found' });
@@ -224,8 +155,14 @@ export const createLead = async (
   try {
     const user = getAuthenticatedUser(req);
     const { name, email, status, source } = req.body;
+    
+    if (!name) {
+       res.status(400).json({ success: false, errors: ['Name is required'] });
+       return;
+    }
 
-    const lead = await Lead.create({
+    const lead = await createLeadModel({
+      leadId: uuidv4(),
       name,
       email,
       status: status || 'New',
@@ -248,7 +185,7 @@ export const updateLead = async (
   req: Request<{ id: string }, unknown, LeadRequestBody>,
   res: Response
 ): Promise<void> => {
-  if (!validateObjectId(req.params.id, res)) {
+  if (!validateLeadId(req.params.id, res)) {
     return;
   }
 
@@ -263,7 +200,7 @@ export const updateLead = async (
   }
 
   try {
-    const lead = await Lead.findById(req.params.id);
+    const lead = await getLeadByIdModel(req.params.id);
 
     if (!lead) {
       res.status(404).json({ success: false, message: 'Lead not found' });
@@ -274,11 +211,7 @@ export const updateLead = async (
       return;
     }
 
-    const updatedLead = await Lead.findByIdAndUpdate(
-      req.params.id,
-      pickLeadUpdates(req.body),
-      { new: true, runValidators: true }
-    ).populate('createdBy', 'name email');
+    const updatedLead = await updateLeadModel(req.params.id, req.body);
 
     res.json({ success: true, data: updatedLead });
   } catch (error: unknown) {
@@ -295,18 +228,23 @@ export const deleteLead = async (
   req: Request<{ id: string }>,
   res: Response
 ): Promise<void> => {
-  if (!validateObjectId(req.params.id, res)) {
+  if (!validateLeadId(req.params.id, res)) {
     return;
   }
 
   try {
-    const lead = await Lead.findByIdAndDelete(req.params.id);
+    const lead = await getLeadByIdModel(req.params.id);
 
     if (!lead) {
       res.status(404).json({ success: false, message: 'Lead not found' });
       return;
     }
+    
+    if (!ensureLeadAccess(req, lead, res)) {
+        return;
+    }
 
+    await deleteLeadModel(req.params.id);
     res.json({ success: true, message: 'Lead deleted successfully' });
   } catch (error: unknown) {
     console.error(`Failed to delete lead: ${getErrorMessage(error)}`);
